@@ -1,0 +1,9 @@
+ticker,name,sector,start_price
+TECH_A,Nimbus Cloud,TECH,120
+TECH_B,Photon Labs,TECH,80
+ENERGY_A,Terra Fuel,ENERGY,60
+ENERGY_B,Aurora Oil,ENERGY,45
+HEALTH_A,Genix Bio,HEALTH,75
+HEALTH_B,Cura Health,HEALTH,50
+AGRI_A,GreenGrain,AGRI,30
+AGRI_B,AgriNova,AGRI,25

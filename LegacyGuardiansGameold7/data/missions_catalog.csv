@@ -1,0 +1,5 @@
+code,title,hint,sector,effect_days,shock
+TECH_BUBBLE,科技泡沫,科技板块短期回调，注意分散与定投。,TECH,"[10, 11]",-0.06
+OIL_SPIKE,油价飙升,能源板块上行，逢高止盈或谨慎加仓。,ENERGY,[20],0.05
+HEALTH_SCARE,医药风波,短期利空，观察基本面再行动。,HEALTH,[35],-0.03
+HARVEST_BOOM,丰收季,农业板块景气，考虑波段策略。,AGRI,[45],0.04

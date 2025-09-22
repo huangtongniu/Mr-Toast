@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Guardians - Journey of Fortune (Levels 1-2)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg-color-panel: rgba(79, 76, 122, 0.7); --text-color: #ffffff; --accent-color: #9b59b6; --glow-color: #f39c12; --border-color: rgba(106, 103, 158, 0.5); --font-main: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { font-family: var(--font-main); color: var(--text-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; background-image: url('/static/background.png'); background-size: cover; background-attachment: fixed; background-position: center; background-repeat: no-repeat; overflow-y: auto; }
+        .panel { background-color: var(--bg-color-panel); border-radius: 15px; padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        h2 { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-top: 0; }
+        button { background-color: var(--accent-color); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out; font-weight: bold; }
+        button:hover { background-color: #8e44ad; transform: translateY(-2px) scale(1.02); }
+        button:disabled { background-color: #555; cursor: not-allowed; transform: none; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin-bottom: 20px; padding: 15px 25px; background-color: rgba(79, 76, 122, 0.6); border-radius: 15px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color); }
+        .main-header h1 { font-size: 2.8em; color: white; text-shadow: 0 0 15px var(--accent-color); margin: 0; }
+        .main-header .game-controls { display: flex; align-items: center; }
+        .main-header button { margin-left: 15px; }
+        .scene { display: none; /* 默认隐藏所有场景 */ grid-template-columns: 1.2fr 1.8fr 1fr; gap: 20px; width: 100%; max-width: 1400px; }
+        .scene.active { display: grid; }
+        .info-card { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;}
+        .info-card h3 { margin: 0 0 10px; font-size: 1.2em; color: var(--glow-color); }
+        .info-card p { margin: 0; font-size: 2em; font-weight: bold; }
+        input[type=number] { padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 5px; text-align: center;}
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1 id="main-title">Legacy Guardians - No <span id="level-indicator">1</span> level</h1>
+        <div class="game-controls">
+            <button id="lang-toggle-btn" style="margin-right:15px;">English</button>
+            <button id="reset-btn">Reset All</button>
+        </div>
+    </div>
+
+    <div id="level-1-scene" class="scene">
+        <div class="panel">
+            <h2>第一关：银行储蓄</h2>
+            <p>欢迎来到财富之旅的第一站！学习利用银行储蓄，让你的财富通过“复利”的力量慢慢增长。选择一个存款方案，看看你的资金会如何变化。</p>
+            <div id="l1-rates-options"></div>
+        </div>
+        
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: space-around;">
+            <div class="info-card"><h3>当前本金</h3><p id="l1-principal">$10,000.00</p></div>
+            <div class="info-card"><h3>已赚利息</h3><p id="l1-interest-earned">$0.00</p></div>
+            <div class="info-card"><h3>通关目标</h3><p id="l1-goal">$10,500.00</p></div>
+            <button id="l1-advance-btn" style="width:100%; padding: 15px; font-size: 1.2em;" disabled>恭喜通关！进入下一关</button>
+        </div>
+        <div class="panel">
+            <h2 id="l1_tips_title">知识小贴士</h2>
+            <p id="l1_tip_principal"><strong>本金 (Principal):</strong> 你最初存入的钱。</p>
+            <p id="l1_tip_rate"><strong>利率 (Interest Rate):</strong> 银行付给你钱的百分比，通常是年化利率。</p>
+            <p id="l1_tip_compound"><strong>复利 (Compound Interest):</strong> 不仅你的本金可以赚取利息，你赚到的利息也能继续赚取利息。这就是爱因斯坦所说的“世界第八大奇迹”！</p>
+            
+            <h3 id="l1_formulas_title" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">计算公式</h3>
+            <p id="l1_formula_interest"><strong>单利:</strong> 利息 = 本金 × 年化利率 × (存款天数 / 365)</p>
+            <p id="l1_formula_compound"><strong>复利:</strong> 最终金额 = 本金 × (1 + 利率)<sup>期数</sup></p>
+        </div>
+
+    </div>
+
+    <div id="level-2-scene" class="scene">
+        <div class="panel">
+            <h2>第二关：初识股票</h2>
+            <p>你已掌握了储蓄的基础，现在来体验风险与收益并存的股票市场吧！在本关，你将专注于一支科技股 <strong>TECH_A</strong>，通过低买高卖来增加你的资产。</p>
+            <div id="l2-stock-info"></div>
+            <div class="asset-actions" style="margin-top: 20px; display:flex; gap:10px;">
+                <input type="number" id="l2-quantity" value="10" min="1" style="width: 80px;">
+                <button id="l2-buy-btn">买入</button>
+                <button id="l2-sell-btn">卖出</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <button id="l2-next-day-btn" style="width: 100%; background-color: #27ae60;">等待一天 (不操作)</button>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>TECH_A Price chart</h2>
+            <canvas id="l2-price-chart"></canvas>
+            <button id="l2-advance-btn" style="width:100%; padding: 15px; font-size: 1.2em; margin-top: 20px;" disabled>恭喜通关！进入第三关</button>
+        </div>
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: space-around;">
+            <div class="info-card"><h3>当前现金</h3><p id="l2-cash">$0.00</p></div>
+            <div class="info-card"><h3>总资产</h3><p id="l2-total-value">$0.00</p></div>
+            <div class="info-card"><h3>通关目标</h3><p id="l2-goal">$11,000.00</p></div>
+        </div>
+    </div>
+
+<script src="/static/game_part1.js">
+    const API_BASE_URL = "http://127.0.0.1:5002";
+    let l2PriceChart;
+
+    function formatCurrency(num) {
+        if (typeof num !== 'number') return '$0.00';
+        return `$${num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+
+    function initializeCharts() {
+        Chart.defaults.color = 'white';
+        const l2ctx = document.getElementById('l2-price-chart').getContext('2d');
+        l2PriceChart = new Chart(l2ctx, { type: 'line', data: { labels: [], datasets: [{ label: '价格', data: [], borderColor: '#3498db', fill: false }]}, options: { scales: { x: { ticks: { color: 'white' }}, y: { ticks: { color: 'white', callback: v => `$${v}` }} }, plugins: { legend: { display: false } } }});
+    }
+
+    function renderGame(data) {
+        if (data.currentLevel >= 3) {
+            console.log("收到了第3关的数据，但此页面不渲染它。等待跳转指令...");
+            return;
+        }
+
+        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+        const currentLevel = data.currentLevel;
+        document.getElementById(`level-${currentLevel}-scene`).classList.add('active');
+        document.getElementById('level-indicator').textContent = currentLevel;
+
+        if (currentLevel === 1) renderLevel1(data);
+        else if (currentLevel === 2) renderLevel2(data);
+    }
+
+    function renderLevel1(data) {
+        document.getElementById('l1-principal').textContent = formatCurrency(data.principal);
+        document.getElementById('l1-interest-earned').textContent = formatCurrency(data.interestEarned);
+        document.getElementById('l1-goal').textContent = formatCurrency(data.goal);
+
+        const optionsDiv = document.getElementById('l1-rates-options');
+        optionsDiv.innerHTML = '';
+        
+        // 从语言包中获取当前的文本模板
+        const lang = LANG[currentLang]; 
+
+        data.availableRates.forEach(opt => {
+            let buttonText = '';
+            // 根据当前语言，生成不同的按钮文字
+            if (currentLang === 'zh') {
+                buttonText = `Save ${opt.period} days (annual rate ${opt.rate * 100}%)`;
+            } else {
+                buttonText = `Deposit ${opt.period} days (${opt.rate * 100}% APR)`;
+            }
+            
+            // 使用新生成的文字来创建按钮
+            optionsDiv.innerHTML += `<button onclick="performAction({action: 'deposit', period: ${opt.period}, rate: ${opt.rate}})">${buttonText}</button> `;
+        });
+        
+        document.getElementById('l1-advance-btn').disabled = !data.isGoalMet;
+
+        // 最后，重新应用一次翻译，确保其他静态文本也保持同步
+        switchLanguage(false); // 传入 false 避免语言来回切换
+    }
+    
+    function renderLevel2(data) {
+        document.getElementById('l2-cash').textContent = formatCurrency(data.cash);
+        document.getElementById('l2-total-value').textContent = formatCurrency(data.totalValue);
+        document.getElementById('l2-goal').textContent = formatCurrency(data.goal);
+
+        document.getElementById('l2-stock-info').innerHTML = `
+            <h3>${data.stock.name} (${data.stock.ticker})</h3>
+            <p>今日价格: <strong>${formatCurrency(data.stock.price)}</strong></p>
+            <p>你的持仓: <strong>${data.stock.holding} 股</strong></p>
+            <p>日期: ${data.date}</p>`;
+
+        l2PriceChart.data.labels = data.priceHistory.map(h => h.date);
+        l2PriceChart.data.datasets[0].data = data.priceHistory.map(h => h.price);
+        l2PriceChart.update();
+        document.getElementById('l2-advance-btn').disabled = !data.isGoalMet;
+    }
+
+    async function apiCall(endpoint, method = 'GET', body = null) {
+        try {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            if (!response.ok) {
+                const data = await response.json();
+                alert(`操作失败: ${data.error || '未知错误'}`);
+                return null;
+            }
+            const data = await response.json();
+            renderGame(data);
+            return data;
+        } catch (error) {
+            console.error("API call failed:", error);
+            alert("无法连接到后端服务器。请确保Python后端脚本正在运行。");
+            return null;
+        }
+    }
+
+    function performAction(actionData) { apiCall('/api/perform_action', 'POST', actionData); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCharts();
+        apiCall('/api/game_state');
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if (confirm("确定要从第一关重新开始吗？所有进度将丢失。")) {
+                apiCall('/api/reset', 'POST');
+            }
+        });
+
+        document.getElementById('l1-advance-btn').addEventListener('click', () => {
+            if(confirm('太棒了！准备好进入下一关了吗？')) apiCall('/api/advance_level', 'POST');
+        });
+
+        document.getElementById('l2-advance-btn').addEventListener('click', async () => {
+            if(confirm('太棒了！准备好进入最终关卡了吗？')) {
+                const result = await apiCall('/api/advance_level', 'POST');
+                if (result && result.currentLevel === 3) {
+                    window.location.href = '/game/part2'; // *** 修改点 ***
+                }
+            }
+        });
+
+        document.getElementById('l2-buy-btn').addEventListener('click', () => performAction({ action: 'buy', quantity: document.getElementById('l2-quantity').value }));
+        document.getElementById('l2-sell-btn').addEventListener('click', () => performAction({ action: 'sell', quantity: document.getElementById('l2-quantity').value }));
+        document.getElementById('l2-next-day-btn').addEventListener('click', () => performAction({action: 'next_day'}));
+    });
+</script>
+</body>
+</html>

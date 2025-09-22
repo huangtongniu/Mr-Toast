@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Guardians - 财富之旅 (第3关)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg-color-panel: rgba(79, 76, 122, 0.7); --text-color: #ffffff; --accent-color: #9b59b6; --glow-color: #f39c12; --border-color: rgba(106, 103, 158, 0.5); --font-main: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { font-family: var(--font-main); color: var(--text-color); margin: 0; padding: 0 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; background-image: url('/static/background.png'); background-size: cover; background-attachment: fixed; background-position: center; background-repeat: no-repeat; overflow-y: auto; }
+        .container {
+            display: flex; /* 使用Flexbox布局 */
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            /*height: calc(100vh - 200px); */ /* <--- 使用这个神奇的calc()函数 */
+            height: 75vh;
+        }
+
+        /* 新增：定义容器内三个面板的宽度比例 */
+        .container > .panel {
+            display: flex; /* 让面板本身也成为flex容器，方便内部元素拉伸 */
+            flex-direction: column;
+        }
+        .container > .panel:nth-child(1) { flex: 1; } /* 第1个面板 (左侧) 占 1份 宽度 */
+        .container > .panel:nth-child(2) { flex: 2; } /* 第2个面板 (中间) 占 2份 宽度 */
+        .container > .panel:nth-child(3) { flex: 1; } /* 第3个面板 (右侧) 占 1份 宽度 */
+        .panel { background-color: var(--bg-color-panel); border-radius: 15px; padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        h2 { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-top: 0; font-weight: 600; text-shadow: 0 0 5px rgba(155, 89, 182, 0.5); }
+        .assets-list { max-height: 55vh ; overflow-y: auto; padding-right: 10px; }
+        .asset-card { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .asset-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .asset-info strong { font-size: 1.1em; }
+        .asset-info span { font-size: 0.85em; opacity: 0.9; }
+        .asset-actions { display: flex; flex-direction: row; gap: 10px; margin-top: 10px; align-items: center;}
+        button { background-color: var(--accent-color); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out; font-family: var(--font-main); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        button:hover { background-color: #8e44ad; transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .sell-btn { background-color: #3498db; }
+        .sell-btn:hover { background-color: #2980b9; }
+        .footer { position: sticky; bottom: 0; width: 100%; background-color: rgba(79, 76, 122, 0.8); padding: 15px 0; display: flex; justify-content: space-around; align-items: center; border-top: 2px solid var(--accent-color); box-shadow: 0 -8px 25px rgba(0,0,0,0.5); margin-top: 20px; backdrop-filter: blur(3px); }
+        .footer-item { text-align: center; }
+        .footer-item h3 { margin: 0; font-size: 1.6em; color: var(--glow-color); text-shadow: 0 0 8px var(--glow-color); }
+        .footer-item p { margin: 0; opacity: 0.85; font-size: 0.9em; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin-bottom: 20px; margin-top: 20px; padding: 15px 25px; background-color: rgba(79, 76, 122, 0.6); border-radius: 15px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color); }
+        .main-header h1 { font-size: 2.8em; color: white; text-shadow: 0 0 15px var(--accent-color), 0 0 5px rgba(255,255,255,0.5); margin: 0; }
+        .game-controls { display: flex; align-items: center; font-size: 1.1em; }
+        .game-controls span { margin-right: 15px; font-weight: 500; }
+        .game-controls button { margin-left: 10px; padding: 10px 18px; font-size: 0.9em; }
+        .mission-card { background: rgba(243, 156, 18, 0.15); border: 1px solid var(--glow-color); color: #f1c40f; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 0 8px rgba(243, 156, 18, 0.4); }
+        .mission-card strong { font-size: 1.1em; display: block; margin-bottom: 5px; }
+        .mission-card p { font-size: 0.9em; line-height: 1.4; opacity: 0.9; }
+        input[type=number] { width: 70px; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 5px; font-size: 0.95em; text-align: center; }
+        .chat-panel { display: flex; flex-direction: column; }
+        .chat-window {flex-grow: 1;max-height: 55vh; min-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-top: 15px; display: flex; flex-direction: column; gap: 12px;}
+      
+        .chat-message { padding: 10px 15px; border-radius: 15px; max-width: 85%; line-height: 1.5; }
+        .user-message { background-color: var(--accent-color); color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
+        .ai-message { background-color: rgba(255,255,255,0.1); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 3px; }
+        .chat-input-area { display: flex; margin-top: 15px; gap: 10px; }
+        #chat-input { flex-grow: 1; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; padding: 12px; font-size: 1em; }
+        #chat-send-btn { padding: 0 20px; background-color: var(--glow-color); }
+        #chat-send-btn:hover { background-color: #d68910; }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>Legacy Guardians - 第 3 关</h1>
+        <div class="game-controls">
+            <span>第 <b id="day-counter">1</b> 天 - <span id="date-display">...</span></span>
+            <button id="next-day-btn">下一天</button>
+            <button id="reset-btn" class="sell-btn">重新开始</button>
+            <button id="lang-toggle-btn" style="margin-right:15px;">English</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel">
+            <h2>当前价格与持仓</h2>
+            <div class="assets-list" id="assets-list"></div>
+        </div>
+        <div class="panel">
+            <h2>你的账户</h2>
+            <canvas id="portfolio-chart"></canvas>
+            <div id="chart-placeholder" style="display:none; text-align:center; padding: 50px 0;">
+                <p style="font-size:1.2em; opacity:0.7;">进行第一笔交易后，将开始绘制您的资产曲线。</p>
+            </div>
+        </div>
+        <div class="panel chat-panel">
+            <h2>AI 投资教练</h2>
+            <div id="missions-board"></div>
+            <div class="chat-window" id="chat-window"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="问我任何问题...">
+                <button id="chat-send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="footer-item">
+            <h3 id="cash-flow">$0.00</h3>
+            <p>现金流 (Cash Flow)</p>
+        </div>
+        <div class="footer-item">
+            <h3 id="total-assets">$0.00</h3>
+            <p>总资产 (Total Assets)</p>
+        </div>
+    </div>
+<script>
+    // ====== 语言包和切换函数 BEGIN ======
+const LANG = {
+    zh: {
+        mainTitle: "Legacy Guardians - 第 3 关",
+        day: "第 <b id='day-counter'>%DAY%</b> 天 - <span id='date-display'>%DATE%</span>",
+        nextDay: "下一天",
+        reset: "重新开始",
+        english: "English",
+        chinese: "中文",
+        priceAndHoldings: "当前价格与持仓",
+        yourAccount: "你的账户",
+        aiCoach: "AI 投资教练",
+        send: "发送",
+        chatPlaceholder: "问我任何问题...",
+        cashFlow: "现金流 (Cash Flow)",
+        totalAssets: "总资产 (Total Assets)",
+        chartTip: "进行第一笔交易后，将开始绘制您的资产曲线。",
+        missionCard: {
+            strong: "任务",
+            p: "提示"
+        },
+        assetPrice: "价格",
+        assetHolding: "持仓",
+        buy: "买入",
+        sell: "卖出",
+        chartSeries: "总资产价值",
+    },
+    en: {
+        mainTitle: "Legacy Guardians - Level 3",
+        day: "Day <b id='day-counter'>%DAY%</b> - <span id='date-display'>%DATE%</span>",
+        nextDay: "Next Day",
+        reset: "Restart",
+        english: "English",
+        chinese: "中文",
+        priceAndHoldings: "Current Prices & Holdings",
+        yourAccount: "Your Account",
+        aiCoach: "AI Investment Coach",
+        send: "Send",
+        chatPlaceholder: "Ask me anything...",
+        cashFlow: "Cash Flow",
+        totalAssets: "Total Assets",
+        chartTip: "Your asset curve will appear after your first trade.",
+        missionCard: {
+            strong: "Mission",
+            p: "Hint"
+        },
+        assetPrice: "Price",
+        assetHolding: "Holding",
+        buy: "Buy",
+        sell: "Sell",
+        chartSeries: "Total Asset Value",
+    }
+};
+let currentLang = 'zh';
+
+function switchLanguage() {
+    currentLang = (currentLang === 'zh') ? 'en' : 'zh';
+    const lang = LANG[currentLang];
+
+    // 标题
+    document.querySelector('.main-header h1').textContent = lang.mainTitle;
+    // 天数和日期
+    const day = document.getElementById('day-counter').textContent;
+    const date = document.getElementById('date-display').textContent;
+    document.querySelector('.game-controls span').innerHTML = lang.day.replace('%DAY%', day).replace('%DATE%', date);
+    // 按钮
+    document.getElementById('next-day-btn').textContent = lang.nextDay;
+    document.getElementById('reset-btn').textContent = lang.reset;
+    document.getElementById('lang-toggle-btn').textContent = currentLang === 'zh' ? lang.english : lang.chinese;
+
+    // 左侧panel标题
+    document.querySelectorAll('.panel h2')[0].textContent = lang.priceAndHoldings;
+    // 中间panel标题
+    document.querySelectorAll('.panel h2')[1].textContent = lang.yourAccount;
+    // 右侧panel标题
+    document.querySelectorAll('.panel h2')[2].textContent = lang.aiCoach;
+
+    // 发送按钮和输入框
+    document.getElementById('chat-send-btn').textContent = lang.send;
+    document.getElementById('chat-input').placeholder = lang.chatPlaceholder;
+
+    // 底部
+    document.querySelectorAll('.footer-item p')[0].textContent = lang.cashFlow;
+    document.querySelectorAll('.footer-item p')[1].textContent = lang.totalAssets;
+
+    // 图表提示
+    document.getElementById('chart-placeholder').querySelector('p').textContent = lang.chartTip;
+    // 更新图表系列名
+    if (portfolioChart) {
+      portfolioChart.data.datasets[0].label = LANG[currentLang].chartSeries;
+      portfolioChart.update();
+    }
+    
+    // 让动态生成的资产卡片/任务区按新语言重绘
+    if (lastGameState) {
+      renderGameState(lastGameState);
+    }
+}
+// ====== 语言包和切换函数 END ======
+    const API_BASE_URL = "http://127.0.0.1:5002";
+    let portfolioChart;
+
+    function formatCurrency(num) {
+        if (typeof num !== 'number') return '$0.00';
+        return `$${num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+
+    function initializeChart() {
+        const ctx = document.getElementById('portfolio-chart').getContext('2d');
+        portfolioChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{
+                label: '总资产价值', data: [],
+                borderColor: '#f39c12', backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                fill: true, tension: 0.1
+            }]},
+            options: { scales: {
+                x: { ticks: { color: 'white' } },
+                y: { ticks: { color: 'white', callback: value => `$${value}` } }
+            }, plugins: { legend: { labels: { color: 'white' } } } }
+        });
+    }
+
+    function renderGameState(data) {
+        if (data.currentLevel < 3) {
+            window.location.href = '/game/part1'; // *** 修改点 ***
+            return;
+        }
+
+        document.getElementById('day-counter').textContent = data.day;
+        document.getElementById('date-display').textContent = data.date;
+        document.getElementById('cash-flow').textContent = formatCurrency(data.cash);
+        document.getElementById('total-assets').textContent = formatCurrency(data.totalAssets);
+
+        const assetsList = document.getElementById('assets-list');
+        assetsList.innerHTML = '';
+        let totalHoldings = 0;
+        data.assets.forEach(asset => {
+            totalHoldings += asset.holding;
+            assetsList.innerHTML += `
+                <div class="asset-card">
+                    <div class="asset-card-header">
+                        <div class="asset-info"><strong>${asset.ticker} (${asset.name})</strong><span> price: ${formatCurrency(asset.price)} | number of shares: ${asset.holding}</span></div>
+                    </div>
+                    <div class="asset-actions"><input type="number" id="qty-${asset.ticker}" value="1" min="1"><button onclick="performAction({action: 'buy', ticker: '${asset.ticker}', quantity: document.getElementById('qty-${asset.ticker}').value})">买入</button><button class="sell-btn" onclick="performAction({action: 'sell', ticker: '${asset.ticker}', quantity: document.getElementById('qty-${asset.ticker}').value})">卖出</button></div>
+                </div>`;
+        });
+
+        const missionsBoard = document.getElementById('missions-board');
+        missionsBoard.innerHTML = data.missions.map(m => `<div class="mission-card"><strong>${m.title}</strong><p>${m.hint}</p></div>`).join('');
+
+        const chatWindow = document.getElementById('chat-window');
+        if (chatWindow.children.length === 0 && data.aiCoachInitialTips) {
+             addMessageToChat(data.aiCoachInitialTips.join(' '), 'ai');
+        }
+
+        const chartCanvas = document.getElementById('portfolio-chart');
+        const chartPlaceholder = document.getElementById('chart-placeholder');
+        if (totalHoldings > 0 || data.day > 1) {
+            chartCanvas.style.display = 'block';
+            chartPlaceholder.style.display = 'none';
+            portfolioChart.data.labels = data.portfolioHistory.map(h => h.date);
+            portfolioChart.data.datasets[0].data = data.portfolioHistory.map(h => h.value);
+        } else {
+            chartCanvas.style.display = 'none';
+            chartPlaceholder.style.display = 'block';
+            portfolioChart.data.labels = [];
+            portfolioChart.data.datasets[0].data = [];
+        }
+        portfolioChart.update();
+    }
+
+    function addMessageToChat(message, sender) {
+        const chatWindow = document.getElementById('chat-window');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message`;
+        messageDiv.textContent = message;
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (message === '') return;
+        addMessageToChat(message, 'user');
+        input.value = '';
+        apiCall('/api/chat', 'POST', { message });
+    }
+
+    async function apiCall(endpoint, method = 'GET', body = null) {
+        try {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            const data = await response.json();
+            if (!response.ok) {
+                alert(`操作失败: ${data.error || '未知错误'}`);
+                return;
+            }
+             if (endpoint === '/api/chat') {
+                addMessageToChat(data.answer, 'ai');
+            } else {
+                renderGameState(data);
+            }
+        } catch (error) {
+            console.error("API call failed:", error);
+            alert("无法连接到后端服务器。请确保Python后端脚本正在运行。");
+        }
+    }
+
+    function performAction(actionData) { apiCall('/api/perform_action', 'POST', actionData); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeChart();
+        apiCall('/api/game_state');
+
+        document.getElementById('next-day-btn').addEventListener('click', () => performAction({action: 'next_day'}));
+
+        document.getElementById('reset-btn').addEventListener('click', async () => {
+            if (confirm("确定要重新开始游戏吗？所有进度将丢失，并将返回第一关。")) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/reset`, { method: 'POST' });
+                    if (response.ok) {
+                        window.location.href = '/game/part1'; // *** 修改点 ***
+                    } else {
+                        alert('重置失败，请检查后端服务。');
+                    }
+                } catch(error) {
+                    alert('无法连接到后端服务器。');
+                }
+            }
+        });
+
+        document.getElementById('chat-send-btn').addEventListener('click', sendChatMessage);
+        document.getElementById('chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
+        document.getElementById('lang-toggle-btn').addEventListener('click', switchLanguage);
+    });
+</script>
+</body>
+</html>
